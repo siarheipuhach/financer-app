@@ -51,10 +51,10 @@ export default class Login extends Component {
 
               />
               <View style={{marginRight: 40, marginLeft: 40, marginTop: 20 }}>
-                <Button color='#e17773' title='LOGIN' onPress={() => this.props.navigation.navigate('Mainpage')}/>
+                <Button color='#e17773' title='Войти' onPress={() => this.props.navigation.navigate('Mainpage')}/>
               </View>
                 <View style={{marginRight: 40, marginLeft: 40, marginTop: 20 }}>
-                <Button color='#e17773' title='BACK' onPress={()=>this.setState({signin: false})}/>
+                <Button color='#e17773' title='Назад' onPress={()=>this.setState({signin: false})}/>
               </View>
             </View>
             }
@@ -80,21 +80,21 @@ export default class Login extends Component {
                   placeholder={'Password'}
               />
               <View style={{marginRight: 40, marginLeft: 40, marginTop: 20 }}>
-                <Button color='#e17773' title='Sign Up' onPress={()=>console.log('login')}/>
+                <Button color='#e17773' title='Регистрация' onPress={()=>console.log('login')}/>
               </View>
                 <View style={{marginRight: 40, marginLeft: 40, marginTop: 20 }}>
-                <Button color='#e17773' title='BACK' onPress={()=>this.setState({signup: false})}/>
+                <Button color='#e17773' title='Назад' onPress={()=>this.setState({signup: false})}/>
               </View>
             </View>
             }
             {!this.state.signup && !this.state.signin &&
               <View style={{marginTop: 20}}>
                 <View style={{marginRight: 40, marginLeft: 40, marginTop: 20 }}>
-                  <Button color='#e17773' title='SIGN IN' onPress={()=>this.setState({signin: true})}/>
+                  <Button color='#e17773' title='Войти' onPress={()=>this.setState({signin: true})}/>
                 </View>
 
                 <View style={{marginRight: 40, marginLeft: 40, marginTop: 20 }}>
-                  <Button color='#e17773' title='SIGN UP' onPress={()=>this.setState({signup: true})}/>
+                  <Button color='#e17773' title='Зарегистрироваться' onPress={()=>this.setState({signup: true})}/>
                 </View>
               </View>
             }
