@@ -1,8 +1,8 @@
 {
-  "name": "app",
-  "displayName": "app",
+  "name": "Financer",
+  "displayName": "Financer",
   "expo": {
-    "name": "app",
+    "name": "Financer",
     "sdkVersion": "23.0.0"
   }
 }

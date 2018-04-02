@@ -8,6 +8,10 @@ import {
     TextInput,
     Button
 } from 'react-native';
+import config from '../config'
+import LoginForm from './LoginForm'
+import RegistrationForm from './RegistrationForm'
+
 
 
 export default class Login extends Component {
@@ -17,13 +21,31 @@ export default class Login extends Component {
   constructor(){
     super();
     this.state = {
-      login: '',
-        password: '',
-        signin: false,
-        signup: false,
+      signin: false,
+      signup: false,
+      registrationCompleted: false
+    }
+    this.statusChange = this.statusChange.bind(this);
+    this.navigateNext = this.navigateNext.bind(this);
+    this.registrationCompleted = this.registrationCompleted.bind(this);
+  }
+  statusChange() {
+    if(this.state.signin){
+      this.setState({signin: false})
+    }else{
+      this.setState({signup: false})
     }
   }
+  registrationCompleted(){
+    this.setState({signion: true, signup: false, registrationCompleted: true})
+  }
+
+  navigateNext(){
+    this.props.navigation.navigate('Mainpage')
+  }
+
   render() {
+    const { signin, signup, registrationCompleted } = this.state;
     return (
       <View style={styles.container}>
         <View style={styles.welcome}>
@@ -31,63 +53,10 @@ export default class Login extends Component {
           <View style={{width: 200, marginLeft: 'auto', marginRight: 'auto'}}>
             <Image style={styles.logo} source={require('../images/logo2.png')}/>
           </View>
-
-            {this.state.signin &&
-            <View style={{marginTop: 20}}>
-              <TextInput
-                  style={styles.loginInput}
-                  onChangeText={(login) => this.setState({login})}
-                  value={this.state.login}
-                  placeholder={'Email'}
-                  onSubmitEditing={() => this.passwordInput.focus()}
-              />
-              <TextInput
-                  style={styles.loginInput}
-                  secureTextEntry={true}
-                  onChangeText={(password) => this.setState({password})}
-                  value={this.state.password}
-                  placeholder={'Password'}
-                  ref={(input) => this.passwordInput = input}
-
-              />
-              <View style={{marginRight: 40, marginLeft: 40, marginTop: 20 }}>
-                <Button color='#e17773' title='Войти' onPress={() => this.props.navigation.navigate('Mainpage')}/>
-              </View>
-                <View style={{marginRight: 40, marginLeft: 40, marginTop: 20 }}>
-                <Button color='#e17773' title='Назад' onPress={()=>this.setState({signin: false})}/>
-              </View>
-            </View>
-            }
-            {this.state.signup &&
-            <View style={{marginTop: 20}}>
-              <TextInput
-                  style={styles.loginInput}
-                  onChangeText={(login) => this.setState({login})}
-                  value={this.state.login}
-                  placeholder={'Name'}
-              />
-              <TextInput
-                  style={styles.loginInput}
-                  onChangeText={(password) => this.setState({password})}
-                  value={this.state.password}
-                  placeholder={'Email'}
-              />
-              <TextInput
-                  style={styles.loginInput}
-                  secureTextEntry={true}
-                  onChangeText={(password) => this.setState({password})}
-                  value={this.state.password}
-                  placeholder={'Password'}
-              />
-              <View style={{marginRight: 40, marginLeft: 40, marginTop: 20 }}>
-                <Button color='#e17773' title='Регистрация' onPress={()=>console.log('login')}/>
-              </View>
-                <View style={{marginRight: 40, marginLeft: 40, marginTop: 20 }}>
-                <Button color='#e17773' title='Назад' onPress={()=>this.setState({signup: false})}/>
-              </View>
-            </View>
-            }
-            {!this.state.signup && !this.state.signin &&
+            {registrationCompleted && <Text style={styles.regSuccess}>Вы успешно зарегистрировались! Теперь вы можете войти.</Text>}
+            {signin && <LoginForm statusChange={this.statusChange} navigateNext={this.navigateNext}/>}
+            {signup && <RegistrationForm statusChange={this.statusChange} registrationCompleted={this.registrationCompleted}/>}
+            {!signup && !signin &&
               <View style={{marginTop: 20}}>
                 <View style={{marginRight: 40, marginLeft: 40, marginTop: 20 }}>
                   <Button color='#e17773' title='Войти' onPress={()=>this.setState({signin: true})}/>
@@ -98,7 +67,7 @@ export default class Login extends Component {
                 </View>
               </View>
             }
-            {this.state.signin}
+            {signin}
         </View>
       </View>
     );
@@ -135,6 +104,19 @@ const styles = StyleSheet.create({
         marginLeft: 'auto',
         marginRight: 'auto',
         marginTop: 10
+    },
+    loginError:{
+      width: '75%',
+      marginLeft: 'auto',
+      marginRight: 'auto',
+      color: 'red',
+    },
+    regSuccess:{
+      width: '75%',
+      color: '#2EB698',
+      marginLeft: 'auto',
+      marginRight: 'auto',
+      marginTop: 10,      
     }
 
 });
