@@ -9,7 +9,8 @@ import {
     ImageBackground,
     TouchableHighlight,
     Modal,
-    TextInput
+    TextInput,
+    CheckBox
 } from 'react-native';
 
 import config from '../config';
@@ -21,6 +22,7 @@ export default class Item extends Component {
     this.state ={
         name: this.props.name,
         value: this.props.value,
+        isActive: this.props.isActive,
         error: false,
         isEditing: false,
         changedName: '',
@@ -37,18 +39,18 @@ export default class Item extends Component {
     }
   }
  setModalVisible=()=>{
-     console.log(this.state.value)
      this.setState({isEditing: true})
     };
 
  hideModal=()=>this.setState({isEditing: false});
 
  editItem(){
-     const { value, name } = this.state;
+     const { value, name, isActive } = this.state;
      const { id } = this.props;
     const data = {
         value: value,
         name: name,
+        isActive: isActive
     }
     fetch(config.editItemUrl + id, {
         method: "PUT",
@@ -73,10 +75,9 @@ export default class Item extends Component {
 
  render() {
      const { type, count } = this.props;
-     const { isEditing, error, value, name } = this.state;
-     console.log(this.state.name)
+     const { isEditing, error, value, name, isActive } = this.state;
      return (
-         <View style={styles.container} ref={component => this._root = component}>
+         <View style={isActive ? styles.container : styles.notActiveContainer} ref={component => this._root = component}>
 
              <View style={styles.textContainer}>
                  <Text style={styles.countNumber}>{count+1}) </Text>
@@ -106,6 +107,13 @@ export default class Item extends Component {
                                 value={`${value}`}
                                 placeholder={'Значение'}
                               />
+                              <View style={[styles.modalInput, {flexDirection:'row', justifyContent: 'flex-start', alignItems: 'center'}]}>
+                                <Text>{isActive ? 'Позиция активна' : 'Позиция не активна'}</Text>
+                                <CheckBox      
+                                    onValueChange={(changedValue) => this.setState({isActive: changedValue})}
+                                    value={isActive}
+                                />
+                              </View>
                         </View>
                         {error && <Text>Ошибка. Проверьте сетевое соединение...</Text>}
                         <View style={styles.modalButtons}>
@@ -143,6 +151,19 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         backgroundColor: 'white',
+    },
+    notActiveContainer:{
+        borderBottomColor: '#d8d4d1',
+        borderTopColor: 'white',
+        borderLeftColor: '#efeff4',
+        borderRightColor: '#efeff4',
+        borderWidth: 1,
+        padding: 10,
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        backgroundColor: '#efeff4',
     },
     imageContainer: {
         display: 'flex',

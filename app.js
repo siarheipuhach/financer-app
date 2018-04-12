@@ -26,3 +26,4 @@ export default StackNavigator({
       screen: Profile,
     },
 });
+

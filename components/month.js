@@ -47,7 +47,16 @@ export default class Month extends Component {
     }
   }
   _renderItem({item, index}){
-    return  <Item updateList={this.getMonthItems} key={index} id={item._id} count={index} type={item.type} name={item.name} value={item.value}/>
+    return  <Item 
+        updateList={this.getMonthItems} 
+        key={index} 
+        id={item._id} 
+        count={index} 
+        type={item.type} 
+        name={item.name} 
+        value={item.value}
+        isActive={item.isActive}
+    />
   }
 
   _renderQuickActions({item}){
@@ -141,16 +150,23 @@ componentWillMount(){
   render() {
       const {showIncome, showExpenses, name, value, error, isAdding, type, items} = this.state;
       const income = _.filter(items, function(item){
-          return item.type == 'income'
+          return item.type == 'income' 
       })
       const expense = _.filter(items, function(item){
         return item.type == 'expense'
     })
     const totalIncome = _.sumBy(income, function(incomeInstance){
+        console.log(incomeInstance.isActive)
+        if (!incomeInstance.isActive){
+            return 0
+        }
         return incomeInstance.value || 0
     })
     const totalExpense = _.sumBy(expense, function(expenseInstance){
-        return expenseInstance.value || 0
+        if (!expenseInstance.isActive){
+            return 0
+        }
+        return expenseInstance.value || 0 
     })
     const balance = totalIncome - totalExpense;
     

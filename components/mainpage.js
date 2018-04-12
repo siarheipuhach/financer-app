@@ -48,6 +48,7 @@ export default class Mainpage extends Component {
         refreshing: false
     };
     this.forceUpdatePage = this.forceUpdatePage.bind(this);
+    this.logout = this.logout.bind(this);
   }
   logout(){
     fetch(config.logoutUrl, {
@@ -58,10 +59,12 @@ export default class Mainpage extends Component {
         credentials: "same-origin"
     }).then((response) => {
         if(response.status == 200){
-            AsyncStorage.removeItem('user')
             this.props.navigation.navigate('Login')
         }                     
     })
+  }
+  removeEventList(){
+    this.props.removeEventList()
   }
   onActionSelected(position) {
     if (position == 0){
