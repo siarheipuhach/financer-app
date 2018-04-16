@@ -41,7 +41,6 @@ export default class Profile extends Component {
   render() {
       if(this.state.user){
         const { user } = this.state;
-        console.log(user)
           return(
             <View style={styles.container}>
                 <Image source={require('../images/profile.png')} style={styles.avatar}/>

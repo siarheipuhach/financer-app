@@ -26,9 +26,13 @@ var _ = require('lodash');
 import LoadingScreen from '../components/loadingScreen'
 import YearItem from '../components/yearItem'
 import config from '../config'
+import {bindActionCreators} from 'redux';
+import { connect } from 'react-redux';
+import {Actions} from 'react-native-router-flux';
 
+import * as MyActions from '../redux/actions'; //Import your actions
 
-export default class Mainpage extends Component {
+class Mainpage extends Component {
     static navigationOptions = {
         header: null
     };
@@ -59,7 +63,8 @@ export default class Mainpage extends Component {
         credentials: "same-origin"
     }).then((response) => {
         if(response.status == 200){
-            this.props.navigation.navigate('Login')
+            Actions.login()
+            // this.props.navigation.navigate('Login')
         }                     
     })
   }
@@ -68,7 +73,8 @@ export default class Mainpage extends Component {
   }
   onActionSelected(position) {
     if (position == 0){
-        this.props.navigation.navigate('Profile')
+        Actions.profile()
+        // this.props.navigation.navigate('Profile')
     }
     if (position == 1){
         this.logout()
@@ -90,13 +96,13 @@ export default class Mainpage extends Component {
           }).then((response) => {
               if(response.status == 200){
                 this.setState({items: JSON.parse(response._bodyInit).items});
-                AsyncStorage.setItem('items', response._bodyInit);
+                AsyncStorage.setItem('data', JSON.stringify(_.sortBy(JSON.parse(response._bodyInit).items, ['year', 'month', 'value'])));
                 this.sortByYears()
               }                       
-            })
+            }).then(()=>this.props.getQuotes())
   }
   componentDidMount(){
-      this.getItems()
+    this.getItems()
     }
     
 
@@ -127,6 +133,8 @@ export default class Mainpage extends Component {
 
   _onRefresh() {
     this.setState({refreshing: true});
+    this.getItems()
+    this.props.getQuotes()
     this.forceUpdatePage().then(() => {
       this.setState({refreshing: false});
     });
@@ -152,6 +160,7 @@ export default class Mainpage extends Component {
           }).then((response) => {
               if(response.status == 200){
                 const newItem = JSON.parse(response._bodyInit)
+                this.props.addQuote(newItem)
                 this.setState({
                     isAdding: false, 
                     sortedItemsByYear: _.groupBy([...this.state.items, newItem], 'year')
@@ -344,3 +353,23 @@ const styles = StyleSheet.create({
         margin: 10
     },
 });
+
+// The function takes data from the app current state,
+// and insert/links it into the props of our component.
+// This function makes Redux know that this component needs to be passed a piece of the state
+function mapStateToProps(state, props) {
+    return {
+        loading: state.dataReducer.loading,
+        data: state.dataReducer.quotes,
+    }
+}
+
+// Doing this merges our actions into the component’s props,
+// while wrapping them in dispatch() so that they immediately dispatch an Action.
+// Just by doing this, we will have access to the actions defined in out actions file (action/home.js)
+function mapDispatchToProps(dispatch) {
+    return bindActionCreators(MyActions, dispatch);
+}
+
+//Connect everything
+export default connect(mapStateToProps, mapDispatchToProps)(Mainpage);

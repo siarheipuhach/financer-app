@@ -8,6 +8,7 @@ import {
     ProgressBarAndroid
 } from 'react-native';
 import config from '../config'
+import {Actions} from 'react-native-router-flux';
 
 
 
@@ -27,10 +28,13 @@ export default class LoadingScreen extends Component {
         credentials: "same-origin"
     }).then((response) => {
         if(response.status == 200){
-        this.props.navigation.navigate('Mainpage')
+        // this.props.navigation.navigate('Mainpage')
+        Actions.mainpage()
         } 
         if(response.status == 403){
-        this.props.navigation.navigate('Login')
+        // this.props.navigation.navigate('Login')
+        Actions.login()
+
         }              
     })
   }

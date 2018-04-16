@@ -4,17 +4,22 @@
   "private": true,
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
-    "test": "jest"
+    "test": "jest",
+    "react-devtool": "react-devtools",
+    "redux-devtool": "remotedev"
   },
   "dependencies": {
     "babel-preset-react-native": "2.1.0",
     "exp": "^35.2.0",
     "expo": "^23.0.0",
     "lodash": "^4.17.5",
+    "moment": "^2.22.1",
     "react": "^16.0.0",
     "react-dom": "^16.2.0",
     "react-native": "0.50.3",
+    "react-native-keyboard-spacer": "^0.4.1",
     "react-native-navigation": "^1.1.388",
+    "react-native-router-flux": "^4.0.0-beta.28",
     "react-native-vector-icons": "^4.6.0",
     "react-navigation": "^1.2.0",
     "react-redux": "^5.0.7",
@@ -25,7 +30,10 @@
     "babel-jest": "22.4.0",
     "babel-preset-react-native": "^2.1.0",
     "jest": "22.4.0",
-    "react-test-renderer": "16.2.0"
+    "react-devtools": "^3.2.1",
+    "react-test-renderer": "16.2.0",
+    "remote-redux-devtools": "^0.5.0",
+    "remotedev-server": "^0.2.4"
   },
   "jest": {
     "preset": "react-native"

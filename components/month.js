@@ -15,28 +15,35 @@ import {
     Modal,
     Picker,
     Alert,
-    BackHandler
+    BackHandler,
+    AsyncStorage
 } from 'react-native';
 
 import Item from './item';
 import config from '../config';
+import {bindActionCreators} from 'redux';
+import { connect } from 'react-redux';
+import {Actions} from 'react-native-router-flux';
+
+import * as MyActions from '../redux/actions'; //Import your actions
 var _ = require('lodash');
 
 
-export default class Month extends Component {
+class Month extends Component {
    static navigationOptions = ({ navigation }) => ({
-    title: `${navigation.state.params.month}`,
-     headerTitleStyle : {textAlign: 'center',alignSelf:'center'},
+    title: `${navigation.state.params.month} ${navigation.state.params.year}`,
+     headerTitleStyle : {},
         headerStyle:{
             backgroundColor:'white',
         },
     });
 
   constructor(props){
-    super();
+    super(props);
     this.state = {
         month: props.navigation.state.params.month,
         name: '',
+        data: props.data,
         value: '',
         showIncome: true,
         showExpenses: true,
@@ -49,6 +56,9 @@ export default class Month extends Component {
   _renderItem({item, index}){
     return  <Item 
         updateList={this.getMonthItems} 
+        updateQuote={this.props.updateQuote}
+        forceUpdateFunc={this.forceUpdateFunc}
+        getQuotes = {this.props.getQuotes}
         key={index} 
         id={item._id} 
         count={index} 
@@ -87,12 +97,15 @@ export default class Month extends Component {
               }               
             })
   }
+  forceUpdateFunc = () => {
+   // AsyncStorage.getItem('data').then((newData) => this.setState({data: JSON.parse(newData)}))
+  } 
 
   hideModal=()=>this.setState({isAdding: false});
 
   addItem=()=>{
-      const { name, value, month, year, type, items } = this.state;
-    data = {
+      const { name, value, month, year, type, items, data } = this.state;
+    newItem = {
         name: name,
         value: value, 
         month: month,
@@ -101,7 +114,7 @@ export default class Month extends Component {
     }
     fetch(config.addItemUrl , {
         method: "POST",
-        body: JSON.stringify(data),
+        body: JSON.stringify(newItem),
         headers: {
               "Content-Type": "application/json"
             },
@@ -109,8 +122,9 @@ export default class Month extends Component {
           }).then((response) => {
               if(response.status == 200){
                   this.setState({isAdding: false})
-                  const newItem = JSON.parse(response._bodyInit)
-                  this.setState({items: [...items, newItem]})
+                  const newReceivedItem = JSON.parse(response._bodyInit)
+                  this.props.addQuote(newReceivedItem)
+                  this.setState({data: [...data, newReceivedItem]})
               }               
             })
 
@@ -124,12 +138,16 @@ export default class Month extends Component {
                 credentials: "same-origin"
               }).then((response) => {
                   if(response.status == 200){
-                      console.log(response)
-                      const items = this.state.items;
-                      const newItems = _.remove(items, function(item){
-                          return item._id === id
-                      })    
-                      this.setState({items})              
+                    const data = this.state.data;
+                    const newItems = _.remove(data, function(item){
+                        return item._id !== id
+                    })  
+                    this.props.deleteQuote(id)  
+                    if (data.length <= 0){
+                        Actions.mainpage()
+                    }
+                    this.setState({data: newItems})   
+
                   }               
                 })
       
@@ -141,14 +159,28 @@ export default class Month extends Component {
       ])   
 
 };
+    
 componentWillMount(){
     BackHandler.removeEventListener('hardwareBackPress', () => {
             BackHandler.exitApp();
         });
 }
 
+filterByMonthAndYear(allItems){
+    const { year, month } = this.state;
+    return _.filter(allItems, function(item){
+        return item.year == year && item.month == month
+    })
+}
+orderBy(orderingList){
+    return _.orderBy(orderingList, ['isActive', 'value'], ['desc', 'desc'])
+}
+    
   render() {
-      const {showIncome, showExpenses, name, value, error, isAdding, type, items} = this.state;
+    
+      const { showIncome, showExpenses, name, value, error, isAdding, type, data } = this.state;
+     
+      const items = this.filterByMonthAndYear(data)
       const income = _.filter(items, function(item){
           return item.type == 'income' 
       })
@@ -156,7 +188,6 @@ componentWillMount(){
         return item.type == 'expense'
     })
     const totalIncome = _.sumBy(income, function(incomeInstance){
-        console.log(incomeInstance.isActive)
         if (!incomeInstance.isActive){
             return 0
         }
@@ -168,7 +199,9 @@ componentWillMount(){
         }
         return expenseInstance.value || 0 
     })
+    console.log(this.orderBy(expense))
     const balance = totalIncome - totalExpense;
+    if (!this.props.loading){        
     
     return (
         <View style={{flexDirection: 'column', justifyContent: 'space-between', height: '100%'}}>
@@ -177,7 +210,7 @@ componentWillMount(){
 
                 <TouchableHighlight onPress={()=>this.setState({showIncome: !showIncome})}>
                 <View>
-                    <Text style={styles.containerLabel}>Список доходов ({income.length})</Text>
+                    <Text style={styles.containerLabel}>Доходы ({income.length})</Text>
                     <Image style={styles.backgroundArrow} source={showIncome ? require('../images/arrow_up.png'): require('../images/arrow_down.png')}/>
                     </View>
                 </TouchableHighlight>
@@ -188,7 +221,7 @@ componentWillMount(){
                   bounceFirstRowOnMount
                   maxSwipeDistance={55}
                   extraData={this.state}
-                  data={income}
+                  data={this.orderBy(income)}
                   renderItem={this._renderItem.bind(this)}
                   keyExtractor={this._keyExtractor}
                   renderQuickActions={this._renderQuickActions.bind(this)}
@@ -202,17 +235,16 @@ componentWillMount(){
           <View style={styles.container}>
               <TouchableHighlight onPress={()=>this.setState({showExpenses: !showExpenses})}>
               <View>
-              <Text style={styles.containerLabel}>Список расходов ({expense.length})</Text>
+              <Text style={styles.containerLabel}>Расходы ({expense.length})</Text>
                 <Image style={styles.backgroundArrow} source={showExpenses ? require('../images/arrow_up.png'): require('../images/arrow_down.png')}/>
               </View>
               </TouchableHighlight>
 
              {showExpenses &&
              <SwipeableFlatList
-                 style={{marginTop: 10}}
-                 bounceFirstRowOnMount
+                 style={{marginTop: 10}}                 
                  maxSwipeDistance={55}
-                 data={expense}
+                 data={this.orderBy(expense)}
                  keyExtractor={this._keyExtractor}
                  renderItem={this._renderItem.bind(this)}
                  renderQuickActions={this._renderQuickActions.bind(this)}
@@ -280,6 +312,9 @@ componentWillMount(){
              
       </View>
     );
+}else{
+    return <Text></Text>
+}
   }
 }
 
@@ -398,3 +433,23 @@ const styles = StyleSheet.create({
         backgroundColor: '#e17773'
     }
 });
+
+// The function takes data from the app current state,
+// and insert/links it into the props of our component.
+// This function makes Redux know that this component needs to be passed a piece of the state
+function mapStateToProps(state, props) {
+    return {
+        loading: state.dataReducer.loading,
+        data: state.dataReducer.quotes
+    }
+}
+
+// Doing this merges our actions into the component’s props,
+// while wrapping them in dispatch() so that they immediately dispatch an Action.
+// Just by doing this, we will have access to the actions defined in out actions file (action/home.js)
+function mapDispatchToProps(dispatch) {
+    return bindActionCreators(MyActions, dispatch);
+}
+
+//Connect everything
+export default connect(mapStateToProps, mapDispatchToProps)(Month);

@@ -46,8 +46,9 @@ export default class Item extends Component {
 
  editItem(){
      const { value, name, isActive } = this.state;
-     const { id } = this.props;
+     const { id, updateMonth } = this.props;
     const data = {
+        id: id,
         value: value,
         name: name,
         isActive: isActive
@@ -60,9 +61,9 @@ export default class Item extends Component {
             },
             credentials: "same-origin"
           }).then((response) => {
-              if(response.status == 200){
-                this.setState({isEditing: false, name: name, value: value})
-                this.forceUpdate()
+              if(response.status == 200){      
+                this.props.updateQuote(data)
+                this.setState({isEditing: false, name: name, value: value})                
               } 
               else {
                 this.setState({

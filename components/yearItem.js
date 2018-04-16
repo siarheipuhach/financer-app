@@ -16,8 +16,16 @@ import {
     AsyncStorage
 } from 'react-native';
 var _ = require('lodash');
+var moment = require('moment');
 
 import config from '../config'
+import { Actions } from 'react-native-router-flux';
+moment.updateLocale('ru', {
+    months : [
+        "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль",
+        "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
+    ]
+});
 
 
 export default class YearItem extends Component {    
@@ -30,15 +38,16 @@ export default class YearItem extends Component {
     };
     this.updateList = this.updateList.bind(this)
   }  
+
    
   _renderItem({item}){
     return  (
-          <TouchableHighlight onPress={() => this.props.navigate('Month', {
-              month: item, 
-              year: this.props.year,
-              items: this.state.sortedByMonth[item],
-              updateList: this.updateList
-              })}>    
+          <TouchableHighlight onPress={() => Actions.month({
+                month: item, 
+                year: this.props.year,
+                items: this.state.sortedByMonth[item],
+                updateList: this.updateList
+            })}>    
        
               <Text style={styles.textMonth}>{item}</Text>
           </TouchableHighlight>
@@ -87,6 +96,9 @@ export default class YearItem extends Component {
       if(!items){
           return <LoadingScreen/>
       }
+      let sortedMonthList = _.orderBy(Object.keys(sortedByMonth), function(month){
+          return moment().month(month).format('M')
+      } )
     return (          
           <View style={styles.container}>
                <TouchableHighlight onPress={()=>this.setState({showList: !showList})}>
@@ -96,7 +108,7 @@ export default class YearItem extends Component {
               {showList &&
               <FlatList
                   style={{marginTop: 10}}
-                  data={Object.keys(sortedByMonth)}                  
+                  data={sortedMonthList}                  
                   extraData={this.state}
                   renderItem={this._renderItem.bind(this)}
                   keyExtractor={this._keyExtractor}                  

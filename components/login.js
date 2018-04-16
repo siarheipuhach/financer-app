@@ -15,6 +15,7 @@ import {
 import config from '../config'
 import LoginForm from './LoginForm'
 import RegistrationForm from './RegistrationForm'
+import { Actions } from 'react-native-router-flux';
 
 
 
@@ -58,7 +59,6 @@ export default class Login extends Component {
   handleOpenURL = ({ url }) => {
     // Extract stringified user string out of the URL
     const [, user_string] = url.match(/user=([^#]+)/);
-    console.log("HERE")
     if (this.state.user === undefined){
       this.setState({
         // Decode the user string and parse it into JSON
@@ -127,12 +127,12 @@ export default class Login extends Component {
   }
 
   navigateNext(){
-    this.props.navigation.navigate('Mainpage')
+    // this.props.navigation.navigate('Mainpage')
+    Actions.mainpage()
   }
 
   render() {
     const { signin, signup, registrationCompleted, user, logout } = this.state;
-    console.log(this.state)  
     if (user && !logout){
       this.loginOauth(user)
     }  
