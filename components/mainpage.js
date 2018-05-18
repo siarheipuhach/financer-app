@@ -281,7 +281,7 @@ class Mainpage extends Component {
             </View>
           );
       }else{
-          return <Text>Loading...</Text>
+          return <LoadingScreen shouldNotBeChecked/>
       }
     
   }

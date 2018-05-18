@@ -97,8 +97,17 @@ export default class YearItem extends Component {
           return <LoadingScreen/>
       }
       let sortedMonthList = _.orderBy(Object.keys(sortedByMonth), function(month){
-          return moment().month(month).format('M')
+          let monthList = [
+            "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль",
+            "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
+        ]
+          return monthList.findIndex(function(monthInList, index){
+            if(month === monthInList)
+                return index
+          }
+        ) 
       } )
+      console.log(sortedMonthList)
     return (          
           <View style={styles.container}>
                <TouchableHighlight onPress={()=>this.setState({showList: !showList})}>

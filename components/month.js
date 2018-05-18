@@ -143,7 +143,7 @@ class Month extends Component {
                         return item._id !== id
                     })  
                     this.props.deleteQuote(id)  
-                    if (data.length <= 0){
+                    if (this.filterByMonthAndYear(newItems).length <= 0){
                         Actions.mainpage()
                     }
                     this.setState({data: newItems})   

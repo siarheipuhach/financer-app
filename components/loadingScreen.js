@@ -16,8 +16,8 @@ export default class LoadingScreen extends Component {
     static navigationOptions = {
         header: null
     };
-  constructor(){
-    super();       
+  constructor(props){
+    super(props);       
   }
   chechIfLoggedIn(){
     fetch(config.checkIfloggedInUrl, {
@@ -39,14 +39,16 @@ export default class LoadingScreen extends Component {
     })
   }
   componentDidMount(){
+    if (!this.props.shouldNotBeChecked){
       this.chechIfLoggedIn();
+    }
   }
 
   render() {
     return (
       <View style={styles.container}>
         <View style={styles.welcome}>
-          <Text style={styles.logoLabel}>Welcome to the Financer!</Text>
+          <Text style={styles.logoLabel}>Добро пожаловать в Financer!</Text>
           <View style={{width: 200, marginLeft: 'auto', marginRight: 'auto'}}>
             <Image style={styles.logo} source={require('../images/logo2.png')}/>
           </View>
